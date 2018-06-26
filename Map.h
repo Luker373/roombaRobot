@@ -18,18 +18,24 @@ typedef struct NodeObj* Node;
 typedef struct MapObj* Map;
 
 // constructors/destructors
-Map newMap(int );
+Map newMap(void);
 void freeMap(Map* pM);
+Node newNode(int xC, int yC);
+void freeNode(Node* pN);
 
 // Access functions
-int isEmpty(Map m);
-int getSize(Map m);
-int getNumObstacles(Map m);
+int isEmpty(Map M);
+int getSize(Map M);
+int getNumObstacles(Map M);
+int checkForObs(int xC, int yC, Map M);
 
 // Manipulation functions
-
+void moveFront(Map M);
+void moveBack(Map M);
+void deleteFront(Map M);
+void addObstacle(int xC, int yC, Map M);
 
 // Other functions
-void printMap(FILE* out, Map m);
+void printMap(FILE* out, Map M);
 
 #endif
