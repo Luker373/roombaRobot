@@ -17,6 +17,11 @@ typedef struct NodeObj{
 	struct NodeObj* prevNode;
 } NodeObj;
 
+
+// objects stored in following way:
+// only obstacles are recorded in Map
+// moving from left to right, xCoor increases until yCoor increments
+// left to right, top to bottom
 typedef struct MapObj{
 	Node frontNode;
 	Node backNode;
@@ -86,7 +91,24 @@ int getSize(Map M){
       printf("Map Error: calling getSize() on NULL Map reference\n");
       exit(1);
     }
-    return NULL;
+
+    moveFront(M);
+    int xMin, xMax, yMin, yMax;
+
+    xMin = M->cursorNode->xCoor;
+    yMin = M->cursorNode->yCoor;
+
+    while(M->cursorIndex->nextNode != NULL){
+        if(M->cursorNode->xCoor > xMax)
+            xMax = M->cursorNode->xCoor;
+        moveNext(M);
+    }
+    yMax = M->cursorNode->yCoor;
+    
+    if(yMax - yMin > xMax - xMin)
+        return (yMax - yMin);
+    else
+        return (xMax - xMin);
 }
 
 int getNumObstacles(Map M){
@@ -98,7 +120,17 @@ int getNumObstacles(Map M){
 }
 
 int checkForObs(int xC, int yC, Map M){
-
+    if( M==NULL ){
+      printf("Map Error: calling checkForObs() on NULL Map reference\n");
+      exit(1);
+    }
+    moveFront(M);
+    while(M->cursorIndex > -1 && M->cursorNode->yCoor <= yC && M->cursorNode->xCoor != xC)
+        moveNext(M);
+    if(M->cursorNode->yCoor == yC && M->cursorNode->xCoor == xC)
+        return 1;
+    else
+        return 0;
 }
 
 // Manipulation functions
@@ -184,11 +216,26 @@ void addObstacle(int xC, int yC, Map M){
       exit(1);
     }
     moveFront(M);
+    if(M->cursorIndex == -1){
+        M->frontNode = M->backNode = newNode(xC, yC);
+        return;
+    }
+    while(M->cursorNode->yCoor <= yC && M->cursorNode->xCoor <= xC)
+        moveNext(M);
+    Node N = newNode(xC, yC);
 
+    N->prevNode = M->cursorNode->prevNode;
+    N->nextNode = M->cursorNode;
+
+    M->cursorNode->prevNode->nextNode = N;
+    M->cursorNode->prevNode = N;
+
+    M->length++;
+    M->cursorIndex++;
 }
 
 // Other functions
-void printMap(FIME* out, Map M);
+void printMap(FILE* out, Map M);
 
 
 
